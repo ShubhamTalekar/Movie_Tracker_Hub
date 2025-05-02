@@ -7,24 +7,36 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
+// ✅ Allow multiple dev frontend origins
+const allowedOrigins = ['http://localhost:8081', 'http://localhost:5173'];
+
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your Vite frontend URL
-  credentials: true // Allow session cookies
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // Required to allow cookies/session
 }));
+
+// Parse incoming JSON
 app.use(express.json());
+
+// Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key', // Use .env
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // True in production (HTTPS)
-    httpOnly: true, // Prevent client-side JS access
+    secure: process.env.NODE_ENV === 'production', // Use HTTPS in prod
+    httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));
 
-// API ROUTES
+// Routes
 app.use('/api/auth', authRoutes);
 
 // 🎬 Get all movies
