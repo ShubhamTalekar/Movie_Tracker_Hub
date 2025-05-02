@@ -20,19 +20,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  const API = import.meta.env.VITE_API_URL;
+
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
-        username: name, // Backend expects `username`, not `name`
+      const response = await axios.post(`${API}/api/auth/register`, {
+        username: name,
         email,
         password,
+      }, {
+        withCredentials: true
       });
 
       if (response.data) {
         setUser(response.data);
         console.log("Registration successful:", response.data);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Registration error:", error.response?.data || error.message);
     }
@@ -40,16 +43,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
+      const response = await axios.post(`${API}/api/auth/login`, {
         email,
         password,
+      }, {
+        withCredentials: true
       });
 
       if (response.data) {
         setUser(response.data);
         console.log("Login successful:", response.data);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Login error:", error.response?.data || error.message);
     }
