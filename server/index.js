@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ['http://localhost:8081', 'http://localhost:5173'];
+const allowedOrigins = ['http://localhost:8081', 'http://localhost:5173', 'https://movie-tracker-hub.vercel.app/'];
 
 app.use(cors({
   origin: function (origin, callback) {
