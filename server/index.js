@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const authRoutes = require('./routes/auth');
-require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -40,35 +39,39 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 
 app.get('/api/movies', async (req, res) => {
+  const pool = require('./db');
   try {
-    const result = await require('./db').query('SELECT * FROM movies ORDER BY created_at DESC');
+    const result = await pool.query('SELECT * FROM movies ORDER BY created_at DESC');
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching movies:', err.stack);
     res.status(500).send('Error fetching movies');
   }
 });
 
 app.post('/api/movies', async (req, res) => {
+  const pool = require('./db');
   const { title, description, genre, release_year, poster_url, type } = req.body;
   try {
-    const result = await require('./db').query(
+    const result = await pool.query(
       `INSERT INTO movies (title, description, genre, release_year, poster_url, type)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [title, description, genre, release_year, poster_url, type]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Error adding movie:', err.stack);
     res.status(500).send('Error adding movie');
   }
 });
 
 app.get('/api/test-db', async (req, res) => {
+  const pool = require('./db');
   try {
-    const result = await require('./db').query('SELECT NOW()');
+    const result = await pool.query('SELECT NOW()');
     res.json({ time: result.rows[0].now });
   } catch (error) {
+    console.error('DB connection error in /api/test-db:', error.stack);
     res.status(500).send('DB connection failed');
   }
 });
