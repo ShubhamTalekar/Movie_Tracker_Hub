@@ -7,7 +7,11 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ['http://localhost:8081', 'http://localhost:5173', 'https://movie-tracker-hub.vercel.app/'];
+const allowedOrigins = [
+  'http://localhost:8081',
+  'http://localhost:5173',
+  'https://movie-tracker-hub.vercel.app'
+];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -17,25 +21,22 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // Required to allow cookies/session
+  credentials: true
 }));
 
-// Parse incoming JSON
 app.use(express.json());
 
-// Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Use HTTPS in prod
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-// Routes
 app.use('/api/auth', authRoutes);
 
 app.get('/api/movies', async (req, res) => {
