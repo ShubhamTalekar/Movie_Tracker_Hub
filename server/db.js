@@ -1,4 +1,3 @@
-// server/db.js
 const { Pool } = require('pg');
 
 if (!process.env.DATABASE_URL) {
@@ -7,9 +6,9 @@ if (!process.env.DATABASE_URL) {
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-// Test the connection on startup
 pool.connect((err) => {
   if (err) {
     console.error('Failed to connect to the database:', err.stack);
